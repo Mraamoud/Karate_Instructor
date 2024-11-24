@@ -24,7 +24,11 @@
                 <li><a href="{% url 'team' %}">Team</a></li>
                 <li><a href="{% url 'about' %}">About</a></li>
                 <li><a href="{% url 'contact' %}">Contact</a></li>
-                <li><a href="{% url 'signup' %}">SignUp</a></li>
+                {% if user.is_authenticated %}
+                    <li><img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile"></li>
+                {% else %}
+                    <li><a href="{% url 'signup' %}">SignUp</a></li>
+                {% endif %}
             </ul>
         </div>
     </header>
@@ -115,7 +119,7 @@
         </div>
     </footer>
     <!-- End Footer -->
-     
+
     {% block script %}
     {% endblock %}
 </body>

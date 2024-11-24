@@ -157,6 +157,7 @@ header .container .logo {
 
 header .container .main-nav {
     display: flex;
+    align-items: center;
 }
 
 @media (max-width: 767px) {
@@ -173,7 +174,16 @@ header .container .main-nav > li > a {
     position: relative;
     padding: 0 30px;
     overflow: hidden;
-    
+}
+
+.profile {
+    width: 40px; 
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
 }
 
 @media (max-width: 767px) {
@@ -291,6 +301,7 @@ header .container .main-nav > li > a:hover::before {
     position: relative;
     width: 400px;
     animation: up-and-down 1s linear infinite;
+    margin-top: 20px;
 }
 
 @media (max-width: 991px) {
