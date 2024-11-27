@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth import login, authenticate
 from .forms import SignUpForm, LoginForm
+from django.views.generic import TemplateView
 
 def login_or_register_view(request):
     signup_form = SignUpForm()
@@ -32,3 +33,6 @@ def login_or_register_view(request):
     else:
         pass
     return render(request, 'user/SignUp.html', {'signup_form': signup_form, 'login_form': login_form})
+
+class ProfileView (TemplateView) : 
+    template_name = "user/profile.html"

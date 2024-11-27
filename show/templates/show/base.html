@@ -25,7 +25,7 @@
                 <li><a href="{% url 'about' %}">About</a></li>
                 <li><a href="{% url 'contact' %}">Contact</a></li>
                 {% if user.is_authenticated %}
-                    <li><img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile"></li>
+                    <li><a href="{% url 'profile' %}"><img src="{{ user.profile.profile_image.url }}" alt="Profile" class="profile"></a></li>
                 {% else %}
                     <li><a href="{% url 'signup' %}">SignUp</a></li>
                 {% endif %}
