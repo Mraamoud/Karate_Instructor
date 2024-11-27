@@ -293,7 +293,6 @@ header .container .main-nav > li > a:hover::before {
   padding: 4px 6px;
   font-size: 16px;
   font-weight: 500;
-  text-transform: capitalize;
   outline: none;
   box-shadow: 0 0 5px #6b0000;
   caret-color: red;

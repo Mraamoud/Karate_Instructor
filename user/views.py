@@ -1,11 +1,12 @@
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect, render
 from django.contrib.auth import login, authenticate
-from django.views.generic import TemplateView
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
-from .forms import SignUpForm, LoginForm, UpdateProfileForm, UpdateUserInfoForm
-from .models import Profile
-
+from .forms import SignUpForm, LoginForm
 def login_or_register_view(request):
     signup_form = SignUpForm()
     login_form = LoginForm()
@@ -36,22 +37,54 @@ def login_or_register_view(request):
     return render(request, 'user/SignUp.html', {'signup_form': signup_form, 'login_form': login_form})
 
 @login_required
-def profile_view (request) :
+def profile_view(request):
     user = request.user
-    profile_form = UpdateProfileForm(instance=user.profile)
-    user_info_form = UpdateUserInfoForm(instance=user)
-    if request.method == "POST" :
-        if "general-change" in request.POST :
-            user_info_form = UpdateUserInfoForm(request.POST, instance=user)
-            profile_form = UpdateProfileForm(request.POST, request.FILES, instance=user.profile)
-            if user_info_form.is_valid() and profile_form.is_valid() :
-                user_info_form.save()
-                profile_form.save()
-                return redirect('profile')
-        elif "password-changed" in request.POST : 
-            user_info_form = UpdateUserInfoForm(request.POST, instance=user)
-            if user_info_form.is_valid() :
-                user_info_form.save()
-                return redirect('profile')
-    return render(request=request, template_name="user/profile.html", 
-                context={"profile_form" : profile_form, "user_info_form" : user_info_form})
+    profile = user.profile
+
+    if request.method == "POST":
+        if "general-change" in request.POST:
+            errors = []
+            new_username = request.POST.get("Username")
+            if new_username:
+                user.username = new_username
+
+            new_email = request.POST.get("Email")
+            if new_email:
+                if new_email != user.email:
+                    try:
+                        validate_email(new_email)
+                    except ValidationError:
+                        errors.append("Invalid email format.")
+                    if User.objects.filter(email=new_email).exists():
+                        errors.append("This email is already in use.")
+                    else : 
+                        user.email = new_email
+
+            new_profile_image = request.FILES.get("profile-image")
+            if new_profile_image:
+                allowed_file_types = ["image/jpeg", "image/png", "image/gif"]
+                if new_profile_image.content_type not in allowed_file_types:
+                    errors.append("Invalid image type. Only JPEG, PNG, and GIF are allowed.")
+
+            if errors:
+                return render(request, "user/profile.html", { "errors": errors })
+
+            if new_profile_image:
+                if profile.profile_image and profile.profile_image.name != "profile_pics/default.png":
+                    profile.profile_image.delete(save=False)
+                profile.profile_image = new_profile_image
+
+            user.save()
+            profile.save()
+            return redirect("profile")
+
+        elif "password-changed" in request.POST:
+            current_password = request.POST["current_password"]
+            new_password = request.POST["new_password"]
+            confirm_password = request.POST["confirm_password"]
+            if (current_password and new_password and (check_password(current_password, user.password)) and (new_password == confirm_password)) :
+                user.set_password(new_password)
+                user.save()
+                return redirect("profile")
+
+    return render(request, "user/profile.html")

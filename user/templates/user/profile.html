@@ -32,21 +32,22 @@
       <section class="generals active" id="generals">
         <div class="container">
           <h2 class="main-title">Generals</h2>
-          <form enctype="multipart/form-data" method="post">
+          <form enctype="multipart/form-data" method="POST">
             {% csrf_token %}
             <div class="image-box">
               <img src="{{ user.profile.profile_image.url }}" alt="walo" />
               <label class="file-input">
-                Upload New Photo {{ profile_form.profile_image }}
+                Upload New Photo
+                <input type="file" name="profile-image" class="IH" />
               </label>
-              <button class="btn-reset">Reset</button>
+              <button class="btn-reset" type="reset">Reset</button>
             </div>
             <div class="input-box">
-              {{ user_info_form.username }}
+              <input type="text" placeholder="{{ user.username }}" />
               <i class="fas fa-user"></i>
             </div>
             <div class="input-box">
-              {{ user_info_form.email }}
+              <input type="text" placeholder="{{ user.email }}" />
               <i class="fas fa-envelope"></i>
             </div>
             <button class="btn" type="submit" name="general-change">
@@ -61,19 +62,19 @@
       <section class="privacy">
         <h2 class="main-title">privacy</h2>
         <div class="container">
-          <form method="post">
+          <form method="POST">
             {% csrf_token %}
             <div class="input-box">
               <label>current password</label>
-              {{ user_info_form.current_password }}
+              <input type="text" name="current_password" />
             </div>
             <div class="input-box">
               <label>new password</label>
-              {{ user_info_form.new_password }}
+              <input type="text" name="new_password" />
             </div>
             <div class="input-box">
               <label>repeat new password</label>
-              {{ user_info_form.confirm_password }}
+              <input type="text" name="confirm_password" />
             </div>
             <button type="submit" name="password-changed">
               Change Password

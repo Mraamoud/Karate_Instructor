@@ -26,24 +26,3 @@ class SignUpForm(forms.ModelForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'username'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
-
-
-class UpdateProfileForm (forms.ModelForm) : 
-    class Meta : 
-        model = Profile
-        fields = ['profile_image']
-        widgets = {
-            'profile_image': forms.FileInput(attrs={'class': 'IH'}),
-        }
-
-class UpdateUserInfoForm(forms.ModelForm):
-    current_password = forms.CharField(widget=forms.PasswordInput())
-    new_password = forms.CharField(widget=forms.PasswordInput())
-    confirm_password = forms.CharField(widget=forms.PasswordInput())
-    class Meta :
-        model = User
-        fields = ['username', 'email' ]
-        widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'Username'}),
-            'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
-        }
