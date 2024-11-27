@@ -4,7 +4,6 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import Profile
 
 class SignUpForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
 
     class Meta:
@@ -13,6 +12,7 @@ class SignUpForm(forms.ModelForm):
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
+            'password' : forms.PasswordInput({'placeholder': 'Password'})
         }
 
     def clean(self):
@@ -27,16 +27,23 @@ class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'username'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
 
-class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField()
-    new_password = forms.CharField()
-    confirm_password = forms.CharField()
 
-    class Meta :
-        model = User
-        fields = ['username', 'email', 'password']
-
-class ProfileUpdateForm(forms.ModelForm):
-    class Meta:
+class UpdateProfileForm (forms.ModelForm) : 
+    class Meta : 
         model = Profile
         fields = ['profile_image']
+        widgets = {
+            'profile_image': forms.FileInput(attrs={'class': 'IH'}),
+        }
+
+class UpdateUserInfoForm(forms.ModelForm):
+    current_password = forms.CharField(widget=forms.PasswordInput())
+    new_password = forms.CharField(widget=forms.PasswordInput())
+    confirm_password = forms.CharField(widget=forms.PasswordInput())
+    class Meta :
+        model = User
+        fields = ['username', 'email' ]
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'Username'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
+        }

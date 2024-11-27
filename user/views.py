@@ -1,7 +1,10 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth import login, authenticate
-from .forms import SignUpForm, LoginForm
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+
+from .forms import SignUpForm, LoginForm, UpdateProfileForm, UpdateUserInfoForm
+from .models import Profile
 
 def login_or_register_view(request):
     signup_form = SignUpForm()
@@ -30,9 +33,25 @@ def login_or_register_view(request):
                     return redirect('home')  # Redirect to home or dashboard
                 else : 
                     login_form.add_error(None, "Invalid email or password")
-    else:
-        pass
     return render(request, 'user/SignUp.html', {'signup_form': signup_form, 'login_form': login_form})
 
-class ProfileView (TemplateView) : 
-    template_name = "user/profile.html"
+@login_required
+def profile_view (request) :
+    user = request.user
+    profile_form = UpdateProfileForm(instance=user.profile)
+    user_info_form = UpdateUserInfoForm(instance=user)
+    if request.method == "POST" :
+        if "general-change" in request.POST :
+            user_info_form = UpdateUserInfoForm(request.POST, instance=user)
+            profile_form = UpdateProfileForm(request.POST, request.FILES, instance=user.profile)
+            if user_info_form.is_valid() and profile_form.is_valid() :
+                user_info_form.save()
+                profile_form.save()
+                return redirect('profile')
+        elif "password-changed" in request.POST : 
+            user_info_form = UpdateUserInfoForm(request.POST, instance=user)
+            if user_info_form.is_valid() :
+                user_info_form.save()
+                return redirect('profile')
+    return render(request=request, template_name="user/profile.html", 
+                context={"profile_form" : profile_form, "user_info_form" : user_info_form})
