@@ -14,3 +14,5 @@ class ProgramsView (TemplateView) :
 
 class TeamView (TemplateView) : 
     template_name = 'show/team.html'
+class ProgressView(TemplateView):
+    template_name = 'show/progress_chart.html'    

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Progress Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>User Progress Chart</h1>
+    <canvas id="progressChart" width="800" height="400"></canvas>
+
+    <script>
+        // Parse the data passed from the Django view
+        const progressData = JSON.parse('{{ data|safe }}');
+
+        // Chart labels (dates) and scores
+        const labels = progressData.labels;  // e.g., ['2024-11-20', '2024-11-21', ...]
+        const scores = progressData.scores;  // e.g., [85.5, 88.0, ...]
+
+        // Render the chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,  // X-axis: session dates
+                datasets: [{
+                    label: 'User Progression by Score',
+                    data: scores,  // Y-axis: progress scores
+                    borderColor: 'blue',
+                    borderWidth: 2,
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Session Date'
+                        },
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Progress Score'
+                        },
+                        beginAtZero: true,
+                    },
+                },
+            },
+        });
+    </script>
+</body>
+</html>
