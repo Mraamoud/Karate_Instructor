@@ -43,9 +43,16 @@ class PracticeSession(models.Model):
 class ProgressHistory(models.Model):
     history_id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(User, related_name='progress_history', on_delete=models.CASCADE)
-    movement_id = models.ForeignKey(Movement, related_name='progress_history', on_delete=models.CASCADE)
-    session_id = models.ForeignKey(PracticeSession, related_name='progress_entries', on_delete=models.CASCADE)
-    progress_score = models.FloatField(validators=[MaxValueValidator(99.99)])
+    movement_id = models.ForeignKey('Movement', related_name='progress_history', on_delete=models.CASCADE)
+    progress_scores = models.JSONField(default=list)  # Use JSONField with a default value as an empty list
 
     def __str__(self):
-        return f"Progress for {self.user.username} on {self.movement.name}"
+        return f"Progress for {self.user_id.username} on {self.movement_id.name}"
+
+    def add_progress(self, new_score):
+        """Add a new score to the list of progress scores."""
+        if isinstance(new_score, (int, float)):  # Ensure it's a number
+            self.progress_scores.append(new_score)
+            self.save()
+        else:
+            raise ValueError("Progress score must be a numeric value.")

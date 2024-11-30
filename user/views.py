@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.hashers import check_password
@@ -8,7 +9,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 from .forms import SignUpForm, LoginForm
-from feedback.models import MartialArt, Movement
+from feedback.models import MartialArt, Movement,ProgressHistory
 
 def login_or_register_view(request):
     signup_form = SignUpForm()
@@ -103,3 +104,24 @@ def movements_view(request, martial_art_id):
     martial_art = get_object_or_404(MartialArt, pk=martial_art_id)
     movements = Movement.objects.filter(martial_art_id=martial_art)
     return render(request, "movements.html", {"martial_art": martial_art, "movements": movements})
+
+@login_required
+def dashboard_view(request):
+    user = request.user
+
+    # Query all progress history entries for the current user
+    progress_entries = ProgressHistory.objects.filter(user_id=user)
+
+    # Prepare data for the dashboard (e.g., dates and scores)
+    progress_data = []
+    for entry in progress_entries:
+        # Assuming that `entry.progress_scores` is a list of floats
+        progress_data.append({
+            'movement_name': entry.movement_id.name,
+            'progress_scores': entry.progress_scores,
+            "image_path" : "user/images/" + entry.movement_id.martial_art_id.name + ".png"
+        })
+    context = {
+        "progress_data": json.dumps(progress_data),  # Pass data as JSON string to the template
+    }
+    return render(request, 'user/dashboard.html', context)
