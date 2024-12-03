@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 
 from .forms import SignUpForm, LoginForm
 from feedback.models import MartialArt, Movement,ProgressHistory
-
+from django.views.decorators.csrf import csrf_exempt
 def login_or_register_view(request):
     signup_form = SignUpForm()
     login_form = LoginForm()
@@ -125,3 +125,27 @@ def dashboard_view(request):
         "progress_data": json.dumps(progress_data),  # Pass data as JSON string to the template
     }
     return render(request, 'user/dashboard.html', context)
+@login_required
+@csrf_exempt
+def train(request):
+    if request.method == "POST":
+        movement_id = request.POST.get("movement_id")
+        if not movement_id or not movement_id.isdigit():
+            return JsonResponse({'error': 'Movement ID is required and must be a number'}, )
+        try:
+            movement = Movement.objects.get(movement_id=movement_id)
+            user = request.user
+            progress_record, created = ProgressHistory.objects.get_or_create(
+                user_id=user, movement_id=movement
+            )
+            
+            # Placeholder for your training logic
+            score = 85.0  # Example training score from your function
+            progress_record.add_progress(score)
+
+            return JsonResponse({"status": "success", "message": f"Training completed for {movement.name}."})
+        except Movement.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Invalid movement ID."}, status=400)
+    else:
+        movements = Movement.objects.all()
+        return render(request, "user/train.html", {"movements": movements})
