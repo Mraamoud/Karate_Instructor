@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'show.apps.ShowConfig',
     'feedback.apps.FeedbackConfig',
-    'user.apps.UserConfig'
+    'user.apps.UserConfig',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Karate_Instructor.wsgi.application'
 
-
+ASGI_APPLICATION = 'Karate_Instructor.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 

@@ -11,6 +11,8 @@ from django.core.exceptions import ValidationError
 from .forms import SignUpForm, LoginForm
 from feedback.models import MartialArt, Movement,ProgressHistory
 from django.views.decorators.csrf import csrf_exempt
+
+from codes.coding import provide_real_time_feedback
 def login_or_register_view(request):
     signup_form = SignUpForm()
     login_form = LoginForm()
@@ -131,7 +133,8 @@ def train(request):
     if request.method == "POST":
         movement_id = request.POST.get("movement_id")
         if not movement_id or not movement_id.isdigit():
-            return JsonResponse({'error': 'Movement ID is required and must be a number'}, )
+            return JsonResponse({'error': 'Movement ID is required and must be a number'})
+        
         try:
             movement = Movement.objects.get(movement_id=movement_id)
             user = request.user
@@ -139,13 +142,31 @@ def train(request):
                 user_id=user, movement_id=movement
             )
             
-            # Placeholder for your training logic
-            score = 85.0  # Example training score from your function
+            score = provide_real_time_feedback(movement)
+            print(score)
             progress_record.add_progress(score)
-
-            return JsonResponse({"status": "success", "message": f"Training completed for {movement.name}."})
+            return JsonResponse({"status": "success", "message": f"Training completed for {movement.name} with a score of {score}."})
         except Movement.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Invalid movement ID."}, status=400)
     else:
         movements = Movement.objects.all()
         return render(request, "user/train.html", {"movements": movements})
+
+
+    
+@login_required
+def save_training_score(request):
+    if request.method == "POST":
+        user = request.user
+        movement_id = request.POST.get("movement_id")
+        score = request.POST.get("score")  # Assume this is sent from JS
+
+        try:
+            movement = Movement.objects.get(movement_id=movement_id)
+            progress_record, _ = ProgressHistory.objects.get_or_create(
+                user=user, movement=movement
+            )
+            progress_record.add_progress(float(score))
+            return JsonResponse({"status": "success", "message": "Score saved!"})
+        except Movement.DoesNotExist:
+            return JsonResponse({"error": "Invalid movement ID"}, status=400)
