@@ -181,8 +181,8 @@ def provide_real_time_feedback(movement,
                                 cv2.circle(frame, (int(user_kp[0] * frame.shape[1]), int(user_kp[1] * frame.shape[0])), 5, (0, 255, 0), -1)
 
                     frame_deviation = np.mean(deviations)
-                    normalized_deviation = min(deviation / deviation_threshold, 1.0)
-                    score = (1 - normalized_deviation) * 100
+                    normalized_deviation = min(frame_deviation / deviation_threshold, 1.0)
+                    score = (1 - normalized_deviation) * 170
                     session_deviation_scores.append(score)
                     elapsed_time = (cv2.getTickCount() - stability_start_time) / cv2.getTickFrequency()
                 frame_idx += 1
@@ -196,7 +196,7 @@ def provide_real_time_feedback(movement,
 
         cv2.imshow(window_name, frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q') or elapsed_time >= 40:
+        if cv2.waitKey(1) & 0xFF == ord('q') or elapsed_time >= 20:
             break
 
     session_score = np.mean(session_deviation_scores) if session_deviation_scores else None
